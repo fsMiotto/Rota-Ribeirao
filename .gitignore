@@ -1,0 +1,16 @@
+# Variáveis de ambiente da raiz (usadas pelo docker-compose)
+.env
+.env.*
+
+# Python (Microserviços FastAPI)
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.pytest_cache/
+
+# SO e IDEs (Global)
+.vscode/
+.idea/
+.DS_Store
