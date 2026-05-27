@@ -42,7 +42,7 @@ export default function Home() {
               Descubra o melhor de <span>Ribeirão Preto</span>
             </h1>
             <p className="hero__subtitle">
-              Restaurantes, bares, cafés e eventos — tudo em um só lugar.
+              Restaurantes, bares, cafés e eventos, tudo em um só lugar.
               Explore, avalie e salve seus favoritos.
             </p>
             <a href="#lugares" className="btn btn--primary hero__cta">

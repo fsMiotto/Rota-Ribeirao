@@ -61,6 +61,7 @@ export const MOCK_PLACES = [
     rating: 4.9,
     priceLevel: 3,
     occasion: ['comemoracao', 'encontro', 'amigos'],
+    eventDate: '2025-08-15',
     description: 'Festival anual de jazz que reúne artistas nacionais e internacionais no Parque Curupira.',
     reviews: [
       { id: 1, author: 'Pedro A.', rating: 5, comment: 'Experiência incrível! Já é tradição na minha agenda.', date: '2025-03-15' },

@@ -200,6 +200,14 @@ export default function PlaceDetail() {
               <h3>Informações</h3>
               <ul>
                 <li><i className="fa-solid fa-tag"></i> <strong>Categoria:</strong> {place.category}</li>
+                {place.category === 'evento' && place.eventDate && (
+                  <li>
+                    <i className="fa-solid fa-calendar-days"></i> <strong>Data:</strong>{' '}
+                    {new Date(place.eventDate + 'T00:00:00').toLocaleDateString('pt-BR', {
+                      weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+                    })}
+                  </li>
+                )}
                 <li><i className="fa-solid fa-dollar-sign"></i> <strong>Preço:</strong>
                   {' '}{'$'.repeat(place.priceLevel)}
                 </li>

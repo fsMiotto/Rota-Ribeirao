@@ -70,6 +70,15 @@ export default function PlaceCard({ place, onToggleFavorite, isFavorite }) {
           <i className="fa-solid fa-location-dot"></i> {place.address}
         </p>
 
+        {place.category === 'evento' && place.eventDate && (
+          <p className="place-card__event-date">
+            <i className="fa-solid fa-calendar-days"></i>{' '}
+            {new Date(place.eventDate + 'T00:00:00').toLocaleDateString('pt-BR', {
+              day: '2-digit', month: 'long', year: 'numeric'
+            })}
+          </p>
+        )}
+
         <div className="place-card__meta">
           <span className="stars">{renderStars(place.rating)}</span>
           <span className="place-card__rating-num">{place.rating?.toFixed(1)}</span>

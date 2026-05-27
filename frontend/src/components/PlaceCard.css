@@ -75,6 +75,20 @@
   gap: 5px;
 }
 
+.place-card__event-date {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #c62828;
+  background: #fce4ec;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  width: fit-content;
+}
+
 .place-card__meta {
   display: flex;
   align-items: center;

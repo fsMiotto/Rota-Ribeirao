@@ -115,9 +115,12 @@ Lista todos os lugares com filtros opcionais via query params.
     "priceLevel": 3,
     "occasion": ["familia", "comemoracao"],
     "description": "Tradicional restaurante de culinária brasileira...",
-    "image": "https://url-da-imagem.com/foto.jpg"
+    "image": "https://url-da-imagem.com/foto.jpg",
+    "eventDate": null
   }
 ]
+
+> `eventDate` é preenchido **apenas para eventos** (category = "evento"), no formato `YYYY-MM-DD`. Para outras categorias, enviar `null`.
 ```
 
 > `image` pode ser null — o frontend usa uma imagem placeholder automática nesse caso.
