@@ -1,0 +1,23 @@
+.favorites-page {
+  padding-bottom: 60px;
+}
+
+.favorites-header {
+  margin-bottom: 32px;
+}
+
+.favorites-header .section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.favorites-header .section-title i {
+  color: #e74c3c;
+}
+
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}

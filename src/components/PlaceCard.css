@@ -1,0 +1,95 @@
+.place-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.place-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-hover);
+}
+
+.place-card__image-link {
+  display: block;
+}
+
+.place-card__image {
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--light-gray);
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  padding: 12px;
+}
+
+.place-card__body {
+  padding: 16px;
+}
+
+.place-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.place-card__name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--dark);
+  transition: var(--transition);
+}
+
+.place-card__name:hover {
+  color: var(--primary);
+}
+
+.place-card__fav {
+  background: none;
+  border: none;
+  color: var(--light-gray);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.place-card__fav:hover,
+.place-card__fav.active {
+  color: #e74c3c;
+  transform: scale(1.2);
+}
+
+.place-card__address {
+  font-size: 0.83rem;
+  color: var(--gray);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.place-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.place-card__rating-num {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.place-card__price {
+  margin-left: auto;
+  font-weight: 700;
+  color: var(--gray);
+  font-size: 0.9rem;
+}

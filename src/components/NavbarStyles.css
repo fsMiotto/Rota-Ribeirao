@@ -1,0 +1,146 @@
+.NavbarItems {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: var(--dark);
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.navbar-logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.navbar-logo span {
+  color: var(--primary);
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-menu li a,
+.nav-menu li button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ccc;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: var(--transition);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.nav-menu li a:hover,
+.nav-menu li button:hover,
+.nav-menu li a.active {
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-username {
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.nav-auth .btn--outline {
+  padding: 7px 18px;
+  font-size: 0.88rem;
+}
+
+.nav-auth .btn--primary {
+  padding: 7px 18px;
+  font-size: 0.88rem;
+}
+
+.menu-icon {
+  display: none;
+  color: var(--white);
+  font-size: 1.4rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+}
+
+@media (max-width: 768px) {
+  .NavbarItems {
+    padding: 0 20px;
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 60px;
+  }
+
+  .menu-icon {
+    display: block;
+  }
+
+  .nav-menu {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    padding: 10px 0 16px;
+    gap: 4px;
+  }
+
+  .nav-menu.active {
+    display: flex;
+  }
+
+  .nav-menu li {
+    width: 100%;
+  }
+
+  .nav-menu li a,
+  .nav-menu li button {
+    width: 100%;
+    padding: 10px 16px;
+  }
+
+  .nav-auth {
+    display: none;
+  }
+
+  .nav-auth.active {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding-bottom: 12px;
+    gap: 8px;
+  }
+
+  .nav-auth .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
