@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { MOCK_PLACES, createPlace, deletePlace, getPlaces } from '../services/placesService'
+import { MOCK_PLACES, createPlace, deletePlace, getPlaces, getPlacesAdmin, updateStatusPlace } from '../services/placesService'
 import './Admin.css'
 
 const EMPTY_FORM = {
   name: '', category: 'restaurante', street: '', number: '', district: '', cep: '',
-  rating: 4.0, priceLevel: 2, occasion: [], description: '', type: 'fixo', image: ' ',
+  rating: 4.0, priceLevel: 2, occasion: [], description: '', type: 'fixo', image: '',
+  eventStartDate: '', eventFinishDate: '',
 }
 
 export default function Admin() {
@@ -19,19 +20,18 @@ export default function Admin() {
   const [successMsg, setSuccessMsg] = useState('')
 
   useEffect(() => {
-    // SÓ redireciona se o loading já terminou E o usuário realmente NÃO for admin
+    if (user === undefined) return;
     if (!loading && !user?.isAdmin) {
       navigate('/')
       console.log(user)
     }
-    getPlaces({category: '', priceLevel: '', occasion: '', minRating: '',})
+    getPlacesAdmin()
       .then(data => {
         setPlaces(data)
       })
       .catch(err => console.error("Erro ao buscar lugares:", err))
   }, [user, navigate])
 
-  // Enquanto estiver checando o token, mostra uma tela amigável
   if (loading) {
     return <div className="loading-screen">Verificando permissões...</div>
   }
@@ -54,11 +54,47 @@ export default function Admin() {
       setForm(f => ({ ...f, [name]: type === 'number' ? Number(value) : value }))
     }
   }
+  const handleToggleActive = async (id, currentStatus) => {
+  try {
+    const novoStatus = !currentStatus;
+
+    await updateStatusPlace(id, novoStatus)
+    
+    setPlaces(prevPlaces => 
+      prevPlaces.map(p => p.id === id ? { ...p, active: novoStatus } : p)
+    );
+
+  } catch (error) {
+    console.error("Erro ao alterar o status do lugar:", error);
+    setPlaces(prevPlaces => 
+      prevPlaces.map(p => p.id === id ? { ...p, active: currentStatus } : p)
+    );
+    alert("Não foi possível alterar o status do lugar.");
+  }
+};
 
   async function handleSubmit(e) {
     e.preventDefault()
     setSaving(true)
     const backupPlaces = [...places]
+    if (form.type === 'evento') {
+    
+      if (!form.eventStartDate || !form.eventFinishDate) {
+        alert("Por favor, preencha as datas de início e término do evento.");
+        return; 
+      }
+
+      const dataInicio = new Date(form.eventStartDate);
+      const dataFim = new Date(form.eventFinishDate);
+
+      if (dataInicio > dataFim) {
+        alert("Erro: A data de início não pode ser posterior à data de término!");
+        return;
+      }
+      if(form.category != "evento"){
+        form.category = "evento"
+      }
+    }
     try {
       const newPlace = await createPlace(form)
       setPlaces(prev => [...prev, newPlace])
@@ -173,7 +209,15 @@ export default function Admin() {
               <div className="admin-form__row">
                 <div className="form-group">
                   <label>Tipo</label>
-                  <select name="type" value={form.type} onChange={handleChange}>
+                  <select name="type" value={form.type} onChange={(e) => {handleChange(e);
+                        if (e.target.value === 'fixo') {
+                          setForm(prev => ({
+                            ...prev,
+                            eventStartDate: '',
+                            eventFinishDate: ''
+                          }));
+                        }
+                      }}>
                     <option value="fixo">Fixo</option>
                     <option value="evento">Evento</option>
                   </select>
@@ -183,7 +227,18 @@ export default function Admin() {
                   <input name="image" value={form.image || ''} onChange={handleChange} placeholder="Ex: https://linkdaimagem.com/foto.jpg" />
                 </div>
               </div>
-
+              {form.type === 'evento' && (
+              <div className="admin-form__row">
+                <div className="form-group">
+                  <label>Data de Início (Evento)</label>
+                  <input name="eventStartDate" type="date" value={form.eventStartDate || ''} onChange={handleChange} min="2026-01-01" max="2030-12-31"  />
+                </div>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Data de Fim (Evento)</label>
+                  <input name="eventFinishDate" type="date" value={form.eventFinishDate || ''} onChange={handleChange} min="2026-01-01" max="2030-12-31" />
+                </div>
+              </div>
+              )}
               <div className="form-group">
                 <label>Ocasiões</label>
                 <div className="admin-checkboxes">
@@ -235,11 +290,16 @@ export default function Admin() {
               </thead>
               <tbody>
                 {places.map(p => (
-                  <tr key={p.id}>
+                  <tr key={p.id} className={!p.active ? "admin-table-row admin-table-row--disabled" : "admin-table-row"}>
                     <td>
                       <Link to={`/place/${p.id}`} className="admin-place-link">
                         {p.name}
                       </Link>
+                      {!p.active && (
+                        <span className="admin-place-status">
+                          (Desativado)
+                        </span>
+                      )}
                     </td>
                     <td>
                       <span className="badge badge--orange">{p.category}</span>
@@ -250,6 +310,12 @@ export default function Admin() {
                     </td>
                     <td>{'$'.repeat(p.priceLevel)}</td>
                     <td>
+                      <button
+                        className={p.active ? "admin-status-btn admin-status-btn--deactivate" : "admin-status-btn admin-status-btn--activate"}
+                        onClick={() => handleToggleActive(p.id, p.active)}>
+                        <i className={p.active ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"}></i>{' '}
+                        {p.active ? "Desativar" : "Ativar"}
+                      </button>
                       <button
                         className="admin-delete-btn"
                         onClick={() => handleDelete(p.id)}

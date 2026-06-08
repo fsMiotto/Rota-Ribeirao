@@ -5,15 +5,14 @@ from dotenv import load_dotenv
 import os
 from sqlalchemy import text
 
+#definicao do caminho das variaveis de ambiente quando se roda localmente
 env_path = Path(__file__).resolve().parent / '.env'
 if env_path.exists():
     load_dotenv(env_path)
 else:
-    load_dotenv()
+    load_dotenv() #quando rodado em docker, vem automaticamente pelo .env da pasta raiz
 
-
-# URL de conexão para PostgreSQL síncrono (psycopg2)
-db_url = os.getenv("DATABASE_URL")
+db_url = os.getenv("DATABASE_URL") #url do supabase
 
 db = create_engine(db_url)
 
@@ -21,7 +20,7 @@ db = create_engine(db_url)
 Base = declarative_base()
 
 #criar as classes/tabelas do banco
-#tabelas: Usuario, Pedido, ItensPedido
+#tabelas: Usuario, Favorito
 class Usuario(Base):
     __tablename__ = "usuarios"
     __table_args__ = {"schema": "usuarios"}
@@ -43,8 +42,7 @@ class Usuario(Base):
 class Favorito(Base):
     __tablename__ = "favoritos"
     __table_args__ = (
-        # Criamos um índice na coluna id_lugar para buscas e exclusões ultra rápidas
-        Index("idx_favorito_lugar", "id_lugar"),
+        Index("idx_favorito_lugar", "id_lugar"), #indice para exclusao dos favoritos quando se exclui o lugar
         {"schema": "usuarios"}
     )
 

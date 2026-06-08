@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import PlaceCard from '../components/PlaceCard'
 import { useAuth } from '../context/AuthContext'
 import FilterBar from '../components/FilterBar'
-import { getPlaces, getFavorites, getStorageCache} from '../services/placesService'
+import { getPlaces, getFavorites, getStorageCache, setStorageCache, toggleFavoritePlace} from '../services/placesService'
 import './Home.css'
 
 export default function Home() {
@@ -15,65 +15,62 @@ export default function Home() {
   })
 
   useEffect(() => {
-    async function carregarFavoritos() {
+    async function carregarDadosHome() {
+      setLoading(true)
       try {
-        let ids = getStorageCache('favorites')
+        const promessas = [getPlaces(filters)]
 
-        if (ids === null) {
-          console.log("Cache expirou ou não existe. Buscando do banco...")
-          ids = await getFavorites()
+        if (user) {
+          console.log("Usuário logado. Preparando carga de favoritos...")
+          
+          const obterFavoritos = async () => {
+            let ids = getStorageCache('favorites')
+            if (ids === null) {
+              console.log("Cache expirou ou não existe. Buscando do banco...")
+              ids = await getFavorites()
+            }
+            return ids;
+          };
+
+          promessas.push(obterFavoritos())
         }
-        setFavorites(ids)
+
+        const resultados = await Promise.all(promessas)
+        
+        const dadosLugares = resultados[0] //o primeiro sempre eh o getPlaces
+        setPlaces(dadosLugares);
+
+        if (user) {
+          const dadosFavoritos = resultados[1] //favoritos
+          setFavorites(dadosFavoritos)
+        } else {
+          setFavorites([]) // sem usuario, sem favoritos
+        }
       } catch (error) {
-        console.error("Erro ao carregar favoritos:", error)
-        setFavorites([])
+        console.error("Erro ao carregar os dados da pagina inicial:", error)
+        if (!user) 
+          setFavorites([]);
       } finally {
-        setLoading(false)
-        setFavorites([]) 
+        setLoading(false);
       }
     }
-    setLoading(true)
-
-    getPlaces(filters)
-      .then(data => {
-        setPlaces(data)
-      })
-      .catch(err => console.error("Erro ao buscar lugares:", err))
-      .finally(() => {
-        if (!user) {
-          setFavorites([]) 
-          setLoading(false)
-        }
-      })
-
-    if (user) {
-      carregarFavoritos()
-    } else {
-      setFavorites([]) 
-    }
-      
+    carregarDadosHome();
   }, [filters, user])
 
-  // function toggleFavorite(id) {
-  //   setFavorites(prev => {
-  //     const next = prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
-  //     localStorage.setItem('favorites', JSON.stringify(next))
-  //     return next
-  //   })
-  // }
   async function toggleFavorite(id) {
     let favs = favorites
     setFavorites(prev => {
       const next = prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
-      localStorage.setItem('favorites', JSON.stringify(next))
+      setStorageCache("favorites", next, 30)
       return next
     })
     try {
       const response = await toggleFavoritePlace(id, true)
       
     } catch (error) {
-      localStorage.setItem('favorites', JSON.stringify(favs))
+      setStorageCache("favorites", favs, 30)
       setFavorites(favorites)
+      console.log(error)
       alert("Não foi possível salvar seu favorito. Tente novamente.")
     }
   }

@@ -21,6 +21,13 @@ class CriacaoLugarSchema(BaseModel):
     class Config:
         from_attributes = True
 
+class EventoResponseSchema(BaseModel):
+    eventStartDate: datetime = Field(default=None, validation_alias="data_inicio")
+    eventFinishDate: datetime = Field(default=None, validation_alias="data_fim")
+
+    class Config:
+        from_attributes = True
+
 class LugarResponseSchema(BaseModel):
     id: int
     name: str = Field(validation_alias="nome")
@@ -35,8 +42,8 @@ class LugarResponseSchema(BaseModel):
     description: str = Field(validation_alias="descricao")
     type: str = Field(validation_alias="tipo")
     image: Optional[str] = Field(default=None, validation_alias="image_url")
-    eventStartDate: Optional[datetime] = Field(default=None, validation_alias="data_inicio")
-    eventFinishDate: Optional[datetime] = Field(default=None, validation_alias="data_fim")
+    event: EventoResponseSchema | None = Field(default=None, validation_alias="evento")
+    ativo: bool = Field(serialization_alias="active")
 
     class Config:
         from_attributes = True

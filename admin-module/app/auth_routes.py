@@ -8,12 +8,17 @@ from jose import jwt
 from datetime import datetime, timedelta, timezone
 from fastapi.security import OAuth2PasswordRequestForm
 
+#todas as rotas desse arquivo terao o /auth
 auth_router = APIRouter(
     prefix="/auth",
     tags=["autenticacao"]
 )
+
+#funcao de criacao de token jwt
 def criar_token(usuario, duracao_token = timedelta(minutes = ACCESS_TOKEN_EXPIRE_MINUTES)):
     data_expiracao = datetime.now(timezone.utc) + duracao_token
+
+    #informacoes q serao enviadas dentro do token
     dict_info = {
         "sub": str(usuario.id),
         "isAdmin":str(usuario.admin),
@@ -21,17 +26,24 @@ def criar_token(usuario, duracao_token = timedelta(minutes = ACCESS_TOKEN_EXPIRE
         "email":str(usuario.email), 
         "exp": data_expiracao,
     }
+    #encode do jwt com a chave secreta (variavel de ambiente)
     return jwt.encode(dict_info, SECRET_KEY, ALGORITHM)
 
 def autenticar_usuario(email, senha, session):
-    usuario = session.query(Usuario).filter(Usuario.email == email).first()
-    if not usuario or not brcypt_context.verify(senha, usuario.senha):
+    #no login, se recebe o email e senha
+    usuario = session.query(Usuario).filter(Usuario.email == email).first() #confere email no banco
+    if not usuario or not brcypt_context.verify(senha, usuario.senha): #confere a senha criptografada
         return False
     else:
         return usuario
 
 @auth_router.post("/register")
 async def criar_conta(usuario_schema: UsuarioSchema, session: Session = Depends(get_session)):
+    """
+    Essa é a rota de criação de contas. É necessário o envio do nome, email e senha. Retornam-se os tokens de acesso, refresh e os dados de usuario.
+
+    Se tiver um usuario já cadastrado com esse email, lança-se erro 404
+    """
     usuario = session.query(Usuario).filter(Usuario.email == usuario_schema.email).first()
 
     if usuario:
@@ -47,6 +59,7 @@ async def criar_conta(usuario_schema: UsuarioSchema, session: Session = Depends(
         )
         session.add(novo_usuario)
         session.commit()
+        #cria-se os tokens jwt de acesso e o refresh
         access_token = criar_token(novo_usuario)
         refresh_token = criar_token(novo_usuario, duracao_token= timedelta(days=7))
         return {
@@ -63,6 +76,11 @@ async def criar_conta(usuario_schema: UsuarioSchema, session: Session = Depends(
 
 @auth_router.post("/login")
 async def login(login_schema: LoginSchema, session: Session = Depends(get_session)):
+    """
+    Essa é a rota de login. Espera-se a senha e o email. Retornam-se os tokens de acesso e refresh.
+
+    Se o usuário informado não for encontrado, lança-se 404.
+    """
     usuario = autenticar_usuario(login_schema.email, login_schema.password, session)
     if not usuario:
         raise HTTPException(status_code=400, detail="Usuario nao encontrado ou credenciais invalidas")
@@ -77,6 +95,11 @@ async def login(login_schema: LoginSchema, session: Session = Depends(get_sessio
 
 @auth_router.post("/login-form")
 async def login_form(dados_formulario: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
+    """
+    Essa é a rota de login pelo form na página /docs da API. Retorna-se o token de acesso.
+
+    Se o usuário informado não for encontrado, lança-se 404.
+    """
     usuario = autenticar_usuario(dados_formulario.username, dados_formulario.password, session)
     if not usuario:
         raise HTTPException(status_code=400, detail="Usuario nao encontrado ou credenciais invalidas")
@@ -90,6 +113,9 @@ async def login_form(dados_formulario: OAuth2PasswordRequestForm = Depends(), se
 
 @auth_router.post("/refresh")
 async def use_refresh_token(r_token_schema: RefreshTokenSchema, session: Session = Depends(get_session)):
+    """
+    Essa é a rota de atualizaçao do token de acesso, ao acabar a validade deste. Primeiro, se confere se o refresh token enviado é válido.
+    """
     usuario = verificar_refresh_token(r_token_schema.refresh_token, session)
     access_token = criar_token(usuario)
     return {
@@ -99,6 +125,9 @@ async def use_refresh_token(r_token_schema: RefreshTokenSchema, session: Session
 
 @auth_router.post("/give_admin/{email}")
 async def give_admin(email: str, admin: Usuario = Depends(verificar_token), session: Session = Depends(get_session)):
+    """
+    Essa é a rota de concessão de Administrador a um usuário pré-existe. O dono da requisição deve ser administrador.
+    """
     if admin.admin:
         usuario = session.query(Usuario).filter(Usuario.email == email).first()
         if usuario:

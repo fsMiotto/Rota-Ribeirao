@@ -23,10 +23,12 @@ export default function Favorites() {
         setFavoritesIds(ids)
 
         if (ids.length > 0) {
-          console.log(ids)
-          const promessas = ids.map(id => getPlaceById(id))
-          const lugares = await Promise.all(promessas)
-          setFavoritePlaces(lugares.filter(p => p !== null))
+          const lugares = await getPlaceById(ids)
+          if(Array.isArray(lugares))
+            setFavoritePlaces(lugares)
+          else
+            setFavoritePlaces([lugares])
+          console.log(lugares)
         }
       } catch (error) {
         console.error("Erro ao carregar tela de favoritos:", error)

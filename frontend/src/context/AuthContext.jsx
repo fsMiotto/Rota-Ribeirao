@@ -30,7 +30,8 @@ export function AuthProvider({ children }) {
           isAdmin: decoded.isAdmin === 'True' || decoded.isAdmin === true
         })
       } catch (e) {
-        localStorage.removeItem('token')
+        if(e instanceof TokenExpiredError)
+          setUser(null)
       }
     }
     setLoading(false)

@@ -53,6 +53,7 @@ export async function register(name, email, password) {
 
 export function logout() {
   localStorage.removeItem('token')
+  localStorage.removeItem("refreshToken")
 }
 
 export async function refreshToken(){
@@ -64,7 +65,7 @@ export async function refreshToken(){
   } catch (error){
     if (error.detail?.code === "TOKEN_EXPIRED") {
       logout()
-      throw new Error('Refresh token expirado')
+      throw new TokenExpiredError("Refresh Token expirado.")
     } else{
       // Mock para desenvolvimento
       const user = { id: Date.now(), name, email, isAdmin: false }

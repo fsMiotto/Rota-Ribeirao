@@ -59,7 +59,7 @@ export default function PlaceDetail() {
         favs = await getFavorites()
       }
       const next = isFav ? favs.filter(f => f !== place.id) : [...favs, place.id]
-      localStorage.setItem('favorites', JSON.stringify(next))
+      setStorageCache("favorites", next, 30)
       setIsFav(!isFav)
       
       await toggleFavoritePlace(place.id, !isFav)
@@ -68,7 +68,7 @@ export default function PlaceDetail() {
     } catch (error) {
       console.log(error)
       setIsFav(estadoAnterior)
-      localStorage.setItem('favorites', JSON.stringify(favs))
+      setStorageCache("favorites", favs, 30)
       alert("Não foi possível salvar seu favorito. Tente novamente.")
       
     }
